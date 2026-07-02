@@ -2,58 +2,43 @@
 -- https://github.com/sarahsophiesee-bot/SakuraUI/blob/main/README.md
 
 local Sakura = loadstring(game:HttpGet("https://cdn.jnkie.com/SakuraUI.lua"))()
-local Sakura = loadstring(game:HttpGet("https://cdn.jnkie.com/SakuraUI.lua"))()
-
--- ==========================================
--- REVAMPED KEY BYPASS HANDLER
--- ==========================================
--- We hook the launch function to inject our own custom master key check
-local originalLaunch = Sakura.LaunchJunkie
-Sakura.LaunchJunkie = function(self, config)
-    -- Force the library options to accept a master key definition
-    if not Sakura.Options then Sakura.Options = {} end
-    
-    -- If you want it to completely skip the UI when you execute it:
-    Sakura.Options.KeylessUi = "true" 
-    
-    -- This forces the internal storage to save "1" as a pre-authenticated key
-    if Sakura.Storage and Sakura.Storage.FileName then
-        pcall(function()
-            writefile(Sakura.Storage.FileName .. ".txt", "1")
-        end)
-    end
-    
-    -- Run the original launcher with the bypassed settings
-    return originalLaunch(self, config)
-end
--- ==========================================
 
 Sakura.Appearance = {
     Title = "Sakura",
-    Subtitle = "Enter your key to bloom",
+    Subtitle = "Welcome Back", -- Changed from "Enter your key"
     Tagline = "where petals fall, magic follows",
     Icon = "rbxassetid://116255434488074",
     IconSize = UDim2.fromOffset(30, 30),
 }
 
 Sakura.Links.Discord = "discord.gg/jnkie"
-Sakura.Storage.FileName = "Jnkie_key"
 
-Sakura.Shop = {
-    Enabled = true,
-    Icon = "",
-    Title = "Get Premium",
-    Subtitle = "Instant delivery • 24/7 support",
-    ButtonText = "Buy",
-    Link = "jnkie.com"
-}
+-- ========================================================
+-- BYPASSING THE KEY SYSTEM ENTIRELY
+-- ========================================================
+-- We completely remove Sakura:LaunchJunkie() and open the UI directly.
+-- Try the standard internal initialization calls for this library:
 
--- Executes the revamped function
-Sakura:LaunchJunkie({
-    Service = "Key system",
-    Identifier = "1142066",
-    Provider = "KEY"
-})
+local success, err = pcall(function()
+    -- Try opening the main UI directly if the library exposes it
+    if Sakura.Init then
+        Sakura:Init()
+    elseif Sakura.Create then
+        Sakura:Create()
+    else
+        -- Fallback: Force the internal "Keyless" flag and call Launch with blank values
+        Sakura.Options = { KeylessUi = "true" }
+        Sakura:LaunchJunkie({
+            Service = "",
+            Identifier = "",
+            Provider = ""
+        })
+    end
+end)
+
+if not success then
+    warn("Failed to bypass UI library restrictions: " .. tostring(err))
+end
 
 
 -- This file was protected using Luraph Obfuscator v14.7 [https://lura.ph/]
