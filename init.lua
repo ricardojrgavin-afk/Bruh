@@ -2,6 +2,31 @@
 -- https://github.com/sarahsophiesee-bot/SakuraUI/blob/main/README.md
 
 local Sakura = loadstring(game:HttpGet("https://cdn.jnkie.com/SakuraUI.lua"))()
+local Sakura = loadstring(game:HttpGet("https://cdn.jnkie.com/SakuraUI.lua"))()
+
+-- ==========================================
+-- REVAMPED KEY BYPASS HANDLER
+-- ==========================================
+-- We hook the launch function to inject our own custom master key check
+local originalLaunch = Sakura.LaunchJunkie
+Sakura.LaunchJunkie = function(self, config)
+    -- Force the library options to accept a master key definition
+    if not Sakura.Options then Sakura.Options = {} end
+    
+    -- If you want it to completely skip the UI when you execute it:
+    Sakura.Options.KeylessUi = "true" 
+    
+    -- This forces the internal storage to save "1" as a pre-authenticated key
+    if Sakura.Storage and Sakura.Storage.FileName then
+        pcall(function()
+            writefile(Sakura.Storage.FileName .. ".txt", "1")
+        end)
+    end
+    
+    -- Run the original launcher with the bypassed settings
+    return originalLaunch(self, config)
+end
+-- ==========================================
 
 Sakura.Appearance = {
     Title = "Sakura",
@@ -13,7 +38,6 @@ Sakura.Appearance = {
 
 Sakura.Links.Discord = "discord.gg/jnkie"
 Sakura.Storage.FileName = "Jnkie_key"
--- Sakura.Options.KeylessUi = "true"
 
 Sakura.Shop = {
     Enabled = true,
@@ -24,11 +48,11 @@ Sakura.Shop = {
     Link = "jnkie.com"
 }
 
+-- Executes the revamped function
 Sakura:LaunchJunkie({
     Service = "Key system",
     Identifier = "1142066",
-    Provider = "KEY",
-    PremiumKey = "1"
+    Provider = "KEY"
 })
 
 
